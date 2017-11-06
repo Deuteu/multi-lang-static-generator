@@ -1,12 +1,14 @@
 GEM
   specs:
     i18n (0.8.1)
+    slop (4.4.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   i18n
+  slop
 
 BUNDLED WITH
    1.15.4
