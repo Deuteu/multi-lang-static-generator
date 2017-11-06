@@ -1,0 +1,12 @@
+GEM
+  specs:
+    i18n (0.8.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  i18n
+
+BUNDLED WITH
+   1.15.4
