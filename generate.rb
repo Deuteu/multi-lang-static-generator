@@ -1,17 +1,32 @@
-require 'erb'
+require 'slop'
+require 'fileutils'
 require 'i18n'
+require 'erb'
 
-# Define folders path
-erb_folder = 'templates'
-res_folder = 'render'
+opts = Slop.parse do |o|
+  o.string '-r', '--root',    'Root folder (current by default)',               default: nil
+  o.string '-i', '--input',   'Input folder (absolute or relative to root)',    default: 'templates'
+  o.string '-o', '--output',  'Output folder (absolute or relative to root)',   default: 'render'
+  o.array  '-l', '--locales', 'Locales (first one is default for translation)', default: [:en, :fr]
+  o.string '-t', '--trans',   'Translations (absolute or relative to root)',    default: 'locale/*.yml'
+  o.on     '-h', '--help' do
+    puts o
+    exit
+  end
+end
+
+root        = opts[:root].nil? ? '' : "#{opts[:root]}/"
+erb_folder  = opts[:input].start_with?('/')  ? opts[:input]  : "#{root}#{opts[:input]}"
+res_folder  = opts[:output].start_with?('/') ? opts[:output] : "#{root}#{opts[:output]}"
+trans_files = opts[:trans].start_with?('/')  ? opts[:trans]  : "#{root}#{opts[:trans]}"
 
 # Create folders if needed
-Dir.mkdir(erb_folder) unless Dir.exist?(erb_folder)
-Dir.mkdir(res_folder) unless Dir.exist?(res_folder)
+FileUtils.mkpath(erb_folder) unless Dir.exist?(erb_folder)
+FileUtils.mkpath(res_folder) unless Dir.exist?(res_folder)
 
-I18n.load_path         = Dir['locale/*.yml']
-I18n.available_locales = [:en, :fr]
-I18n.default_locale    = :en
+I18n.load_path         = Dir[trans_files]
+I18n.available_locales = opts[:locales]
+I18n.default_locale    = opts[:locales].first
 I18n.backend.load_translations
 
 Dir.glob("#{erb_folder}/*.erb") do |erb_file|
